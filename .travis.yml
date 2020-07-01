@@ -4,30 +4,25 @@ cache:
 install:
 - bundle install
 rvm:
-- 2.1
-- 2.2
 - 2.3.0
 - 2.4.1
 notifications:
   email:
     recipients:
-    - sensu-plugin@sensu-plugins.io
+    - wopr@wopr.tech
     on_success: change
     on_failure: always
 script:
 - bundle exec rake default
 - gem build sensu-plugins-selinux.gemspec
 - gem install sensu-plugins-selinux-*.gem
+before_deploy:
+- bash -c "[ ! -d bonsai/ ] && git clone https://github.com/sensu/sensu-go-bonsai-asset.git bonsai || echo 'bonsai/ exists, skipping git clone'"
 deploy:
-  provider: rubygems
-  api_key:
-    secure: dQ7EwSn1xeXqXjFQ/Zw20rfQhT19VDjUI1LJ65YcvlSBXUsqnAks9YbXIireAKZbjjL6cmrzKC+x9pcIlYGjcpLVwNwbq/Jq9bRyicJJuZ+QDJQY690udn76qnEdjra5WvLUMPx+Fjtdo3ASIqREEzpjJHItZ7sUbBmVrTrIwns=
-  gem: sensu-plugins-selinux
-  on:
-    tags: true
-    all_branches: true
-    rvm: 2.1
-    rvm: 2.2
-    rvm: 2.3.0
-    rvm: 2.4.1
-    repo: sensu-plugins/sensu-plugins-selinux
+- provider: script
+￼  script: bonsai/ruby-runtime/travis-build-ruby-plugin-assets.sh sensu-plugins-etcd
+￼  skip_cleanup: true
+￼  on:
+￼    tags: true
+￼    all_branches: true
+￼    rvm: 2.4.1
